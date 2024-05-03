@@ -172,32 +172,28 @@ class _MyHomePageState extends State<Weather> {
                 Row(
                   children: [
                     SizedBox(width: 16.0),
-                    Expanded(
-                      child: Center(
-                        child: Container(
-                          padding: EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
                                   Expanded(
-                                    child: TextFormField(
-                                      decoration: InputDecoration(
-                                        labelText: 'Node ID',
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                                      ),
-                                      textAlign: TextAlign.right, // Set text direction to right-to-left
-                                      controller: TextEditingController(text: _nodeId),
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.deny(RegExp(r'[^0-9]')), // Allow only numbers
-                                      ],
-                                      onChanged: (value) {
-                                        if (value.isEmpty || RegExp(r'^[0-9]+$').hasMatch(value)) {
-                                          setState(() {
-                                            _nodeId = value;
-                                                                                // Node ID selection logic...
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: 'Node ID',
+                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                  ),
+                                  textAlign: TextAlign.left,
+                                  controller: TextEditingController(text: _nodeId),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), // Allow only numbers
+                                  ],
+                                  onChanged: (value) {
+                                    if (value.isNotEmpty && value.startsWith('0')) {
+                                      // Remove leading zeros
+                                      setState(() {
+                                        _nodeId = int.parse(value).toString();
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _nodeId = value;
+                                                                                              // Node ID selection logic...
 
                                           // controller: TextEditingController(text: _nodeId ?? ''),
                                           // onChanged: (value) {
@@ -612,14 +608,9 @@ class _MyHomePageState extends State<Weather> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+                  
+                );
+              
   }
 }
 
