@@ -1,5 +1,6 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:convert';
-import 'dart:html' as html;
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -46,9 +47,11 @@ class _MyHomePageState extends State<Weather> {
   String _nodeId = '';
   String errorMessage = '';
   late String Class = " ";
+    // ignore: unused_field
+    final TextEditingController _nodeIdController = TextEditingController();
+
   TimeOfDay _startTime = TimeOfDay.now();
   TimeOfDay _endTime = TimeOfDay.now();
-  final TextEditingController _nodeIdController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -63,9 +66,9 @@ class _MyHomePageState extends State<Weather> {
     String extractedDate1 = startDate.split(' ')[0];
     String extractedDate2 = endDate.split(' ')[0];
     String startTimeString =
-        '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}';
+        '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}';
     String endTimeString =
-        '${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}';
+        '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}';
 
     DateTime startDateTime = DateTime.parse('$extractedDate1 $startTimeString');
     DateTime endDateTime = DateTime.parse('$extractedDate2 $endTimeString');
@@ -213,7 +216,7 @@ class _MyHomePageState extends State<Weather> {
                                             await showDatePicker(
                                           context: context,
                                           initialDate:
-                                              _startDate ?? DateTime.now(),
+                                              _startDate,
                                           firstDate: DateTime(1900),
                                           lastDate: DateTime.now(),
                                           builder: (context, child) {
@@ -271,7 +274,7 @@ class _MyHomePageState extends State<Weather> {
                                             await showTimePicker(
                                           context: context,
                                           initialTime:
-                                              _startTime ?? TimeOfDay.now(),
+                                              _startTime,
                                           builder: (context, child) {
                                             return Theme(
                                               data: Theme.of(context).copyWith(
@@ -315,7 +318,7 @@ class _MyHomePageState extends State<Weather> {
                                       controller: TextEditingController(
                                         // text: _startTime != null ? '${_startTime!.format(context)}' : '',
                                         text: _startTime != null
-                                            ? '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}'
+                                            ? '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}'
                                             : '',
                                       ),
                                     ),
@@ -329,7 +332,7 @@ class _MyHomePageState extends State<Weather> {
                                             await showDatePicker(
                                           context: context,
                                           initialDate:
-                                              _endDate ?? DateTime.now(),
+                                              _endDate,
                                           firstDate: DateTime(1900),
                                           lastDate: DateTime.now(),
                                           builder: (context, child) {
@@ -386,7 +389,7 @@ class _MyHomePageState extends State<Weather> {
                                             await showTimePicker(
                                           context: context,
                                           initialTime:
-                                              _endTime ?? TimeOfDay.now(),
+                                              _endTime,
                                           builder: (context, child) {
                                             return Theme(
                                               data: Theme.of(context).copyWith(
@@ -430,7 +433,7 @@ class _MyHomePageState extends State<Weather> {
                                       controller: TextEditingController(
                                         // text: _endTime != null ? '${_endTime!.format(context)}' : '',
                                         text: _endTime != null
-                                            ? '${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}'
+                                            ? '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}'
                                             : '',
                                       ),
                                     ),
