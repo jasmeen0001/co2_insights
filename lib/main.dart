@@ -47,8 +47,8 @@ class _MyHomePageState extends State<Weather> {
   String _nodeId = '';
   String errorMessage = '';
   late String Class = " ";
-    // ignore: unused_field
-    final TextEditingController _nodeIdController = TextEditingController();
+  // ignore: unused_field
+  final TextEditingController _nodeIdController = TextEditingController();
 
   TimeOfDay _startTime = TimeOfDay.now();
   TimeOfDay _endTime = TimeOfDay.now();
@@ -172,445 +172,479 @@ class _MyHomePageState extends State<Weather> {
                 Row(
                   children: [
                     SizedBox(width: 16.0),
-                                  Expanded(
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Node ID',
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    Expanded(
+                        child: TextFormField(
+                      controller: _nodeIdController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Node ID',
+                        border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      ),
+                      onChanged: (value) {
+                        {
+                          // Remove leading zeros
+                          setState(() {
+                            _nodeId = value;
+                          });
+                        }
+                        ;
+                      },
+                    )),
+                    SizedBox(width: 16.0),
+                    Expanded(
+                      child: TextFormField(
+                        onTap: () async {
+                          final DateTime? selectedDate = await showDatePicker(
+                            context: context,
+                            initialDate: _startDate,
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: const ColorScheme.light(
+                                    primary: Colors.green,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.purple,
                                   ),
-                                  textAlign: TextAlign.left,
-                                  controller: TextEditingController(text: _nodeId),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), // Allow only numbers
-                                  ],
-                                  onChanged: (value) {
-                                    if (value.isNotEmpty && value.startsWith('0')) {
-                                      // Remove leading zeros
-                                      setState(() {
-                                        _nodeId = int.parse(value).toString();
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _nodeId = value;
-                                                                                              // Node ID selection logic...
-
-                                          // controller: TextEditingController(text: _nodeId ?? ''),
-                                          // onChanged: (value) {
-                                          //   setState(() {
-                                          //     _nodeId = value;
-                                        });
-                                        };
-                                      },
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      elevation: 10,
+                                      backgroundColor:
+                                          Colors.black, // button text color
                                     ),
-                                  ),
-                                  SizedBox(width: 16.0),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onTap: () async {
-                                        final DateTime? selectedDate =
-                                            await showDatePicker(
-                                          context: context,
-                                          initialDate:
-                                              _startDate,
-                                          firstDate: DateTime(1900),
-                                          lastDate: DateTime.now(),
-                                          builder: (context, child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme:
-                                                    const ColorScheme.light(
-                                                  primary: Colors.green,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.purple,
-                                                ),
-                                                textButtonTheme:
-                                                    TextButtonThemeData(
-                                                  style: TextButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor: Colors
-                                                        .black, // button text color
-                                                  ),
-                                                ),
-                                              ),
-                                              // child: child!,
-                                              child: MediaQuery(
-                                                data: MediaQuery.of(context)
-                                                    .copyWith(
-                                                        alwaysUse24HourFormat:
-                                                            true),
-                                                child: child ?? Container(),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                        if (selectedDate != null) {
-                                          setState(() {
-                                            _startDate = selectedDate;
-                                          });
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        labelText: 'Start Date',
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12, horizontal: 16),
-                                      ),
-                                      controller: TextEditingController(
-                                          text: _startDate != null
-                                              ? DateFormat('dd-MM-yyyy')
-                                                  .format(_startDate)
-                                              : ''),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onTap: () async {
-                                        final TimeOfDay? selectedTime =
-                                            await showTimePicker(
-                                          context: context,
-                                          initialTime:
-                                              _startTime,
-                                          builder: (context, child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme:
-                                                    const ColorScheme.light(
-                                                  primary: Colors.green,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.purple,
-                                                ),
-                                                textButtonTheme:
-                                                    TextButtonThemeData(
-                                                  style: TextButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor:
-                                                        Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: MediaQuery(
-                                                data: MediaQuery.of(context)
-                                                    .copyWith(
-                                                        alwaysUse24HourFormat:
-                                                            true),
-                                                child: child ?? Container(),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                        if (selectedTime != null) {
-                                          setState(() {
-                                            _startTime = selectedTime;
-                                          });
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        labelText: 'Start Time',
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12, horizontal: 16),
-                                      ),
-                                      controller: TextEditingController(
-                                        // text: _startTime != null ? '${_startTime!.format(context)}' : '',
-                                        text: _startTime != null
-                                            ? '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}'
-                                            : '',
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 16.0),
-                                  SizedBox(width: 16.0),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onTap: () async {
-                                        final DateTime? selectedDate =
-                                            await showDatePicker(
-                                          context: context,
-                                          initialDate:
-                                              _endDate,
-                                          firstDate: DateTime(1900),
-                                          lastDate: DateTime.now(),
-                                          builder: (context, child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme:
-                                                    const ColorScheme.light(
-                                                  primary: Colors.green,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.purple,
-                                                ),
-                                                textButtonTheme:
-                                                    TextButtonThemeData(
-                                                  style: TextButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor:
-                                                        Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: MediaQuery(
-                                                data: MediaQuery.of(context)
-                                                    .copyWith(
-                                                        alwaysUse24HourFormat:
-                                                            true),
-                                                child: child ?? Container(),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                        if (selectedDate != null) {
-                                          setState(() {
-                                            _endDate = selectedDate;
-                                          });
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        labelText: 'End Date',
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12, horizontal: 16),
-                                      ),
-                                      controller: TextEditingController(
-                                          text: _endDate != null
-                                              ? DateFormat('dd-MM-yyyy')
-                                                  .format(_endDate)
-                                              : ''),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      onTap: () async {
-                                        final TimeOfDay? selectedTime =
-                                            await showTimePicker(
-                                          context: context,
-                                          initialTime:
-                                              _endTime,
-                                          builder: (context, child) {
-                                            return Theme(
-                                              data: Theme.of(context).copyWith(
-                                                colorScheme:
-                                                    const ColorScheme.light(
-                                                  primary: Colors.green,
-                                                  onPrimary: Colors.white,
-                                                  onSurface: Colors.purple,
-                                                ),
-                                                textButtonTheme:
-                                                    TextButtonThemeData(
-                                                  style: TextButton.styleFrom(
-                                                    elevation: 10,
-                                                    backgroundColor:
-                                                        Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: MediaQuery(
-                                                data: MediaQuery.of(context)
-                                                    .copyWith(
-                                                        alwaysUse24HourFormat:
-                                                            true),
-                                                child: child ?? Container(),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                        if (selectedTime != null) {
-                                          setState(() {
-                                            _endTime = selectedTime;
-                                          });
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        labelText: 'End Time',
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12, horizontal: 16),
-                                      ),
-                                      controller: TextEditingController(
-                                        // text: _endTime != null ? '${_endTime!.format(context)}' : '',
-                                        text: _endTime != null
-                                            ? '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}'
-                                            : '',
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 16.0),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      updateData();
-                                    },
-                                    child: Text(
-                                      'Get Data',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors
-                                          .green, // Set the button color to green
-                                      minimumSize: Size(80,
-                                          0), // Set a minimum width for the button
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 20, horizontal: 24),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 16.0),
-                                ],
-                              ),
-                              SizedBox(height: 32.0),
-                              if (errorMessage.isNotEmpty)
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Container(
-                                      height: 400,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.5),
-                                            spreadRadius: 2,
-                                            blurRadius: 5,
-                                            offset: Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          errorMessage,
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15,
-                                          ),
-                                          semanticsLabel: errorMessage = "",
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              else
-                                Center(
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        height: 400,
-                                        child: SfCartesianChart(
-                                          title: ChartTitle(text: 'Temperature'),
-                                          tooltipBehavior: _tooltipBehavior,
-                                          primaryXAxis: DateTimeAxis(),
-                                          series: <CartesianSeries>[
-                                            LineSeries<apiData, DateTime>(
-                                              dataSource: chartData,
-                                              xValueMapper: (apiData data, _) => DateTime.fromMillisecondsSinceEpoch(int.parse(data.timestamp) * 1000),
-                                              yValueMapper: (apiData data, _) => double.parse(data.temperature),
-                                              name: 'Temperature',
-                                              color: Color.fromARGB(255, 50, 110, 160),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(height: 20), // Add spacing between charts
-                                      Container(
-                                        height: 400,
-                                        child: SfCartesianChart(
-                                          title: ChartTitle(text: 'CO2'),
-                                          tooltipBehavior: _tooltipBehavior,
-                                          primaryXAxis: DateTimeAxis(),
-                                          series: <CartesianSeries>[
-                                            LineSeries<apiData, DateTime>(
-                                              dataSource: chartData,
-                                              xValueMapper: (apiData data, _) => DateTime.fromMillisecondsSinceEpoch(int.parse(data.timestamp) * 1000),
-                                              yValueMapper: (apiData data, _) => double.parse(data.CO2),
-                                              name: 'CO2',
-                                              color: Color.fromARGB(255, 204, 103, 53),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 400,
-                                        child: SfCartesianChart(
-                                          title: ChartTitle(text: 'SO2'),
-                                          tooltipBehavior: _tooltipBehavior,
-                                          primaryXAxis: DateTimeAxis(),
-                                          series: <CartesianSeries>[
-                                            LineSeries<apiData, DateTime>(
-                                              dataSource: chartData,
-                                              xValueMapper: (apiData data, _) => DateTime.fromMillisecondsSinceEpoch(int.parse(data.timestamp) * 1000),
-                                              yValueMapper: (apiData data, _) => double.parse(data.SO2),
-                                              name: 'SO2',
-                                              color: Color.fromARGB(255, 45, 167, 69),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 400,
-                                        child: SfCartesianChart(
-                                          title: ChartTitle(text: 'NH3'),
-                                          tooltipBehavior: _tooltipBehavior,
-                                          primaryXAxis: DateTimeAxis(),
-                                          series: <CartesianSeries>[
-                                            LineSeries<apiData, DateTime>(
-                                              dataSource: chartData,
-                                              xValueMapper: (apiData data, _) => DateTime.fromMillisecondsSinceEpoch(int.parse(data.timestamp) * 1000),
-                                              yValueMapper: (apiData data, _) => double.parse(data.NH3),
-                                              name: 'NH3',
-                                              color: Color.fromARGB(255, 161, 36, 134),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 400,
-                                        child: SfCartesianChart(
-                                          title: ChartTitle(text: 'H2S'),
-                                          tooltipBehavior: _tooltipBehavior,
-                                          primaryXAxis: DateTimeAxis(),
-                                          series: <CartesianSeries>[
-                                            LineSeries<apiData, DateTime>(
-                                              dataSource: chartData,
-                                              xValueMapper: (apiData data, _) => DateTime.fromMillisecondsSinceEpoch(int.parse(data.timestamp) * 1000),
-                                              yValueMapper: (apiData data, _) => double.parse(data.H2S),
-                                              name: 'H2S',
-                                              color: Color.fromARGB(255, 168, 39, 39),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 400,
-                                        child: SfCartesianChart(
-                                          title: ChartTitle(text: 'Humidity'),
-                                          tooltipBehavior: _tooltipBehavior,
-                                          primaryXAxis: DateTimeAxis(),
-                                          series: <CartesianSeries>[
-                                            LineSeries<apiData, DateTime>(
-                                              dataSource: chartData,
-                                              xValueMapper: (apiData data, _) => DateTime.fromMillisecondsSinceEpoch(int.parse(data.timestamp) * 1000),
-                                              yValueMapper: (apiData data, _) => double.parse(data.humidity),
-                                              name: 'Humidity',
-                                              color: Color.fromARGB(255, 147, 151, 39),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
                                   ),
                                 ),
-                            ],
+                                // child: child!,
+                                child: MediaQuery(
+                                  data: MediaQuery.of(context)
+                                      .copyWith(alwaysUse24HourFormat: true),
+                                  child: child ?? Container(),
+                                ),
+                              );
+                            },
+                          );
+                          if (selectedDate != null) {
+                            setState(() {
+                              _startDate = selectedDate;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Start Date',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                        ),
+                        controller: TextEditingController(
+                            text: _startDate != null
+                                ? DateFormat('dd-MM-yyyy').format(_startDate)
+                                : ''),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        onTap: () async {
+                          final TimeOfDay? selectedTime = await showTimePicker(
+                            context: context,
+                            initialTime: _startTime,
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: const ColorScheme.light(
+                                    primary: Colors.green,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.purple,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      elevation: 10,
+                                      backgroundColor: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                child: MediaQuery(
+                                  data: MediaQuery.of(context)
+                                      .copyWith(alwaysUse24HourFormat: true),
+                                  child: child ?? Container(),
+                                ),
+                              );
+                            },
+                          );
+                          if (selectedTime != null) {
+                            setState(() {
+                              _startTime = selectedTime;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Start Time',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                        ),
+                        controller: TextEditingController(
+                          // text: _startTime != null ? '${_startTime!.format(context)}' : '',
+                          text: _startTime != null
+                              ? '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}'
+                              : '',
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.0),
+                    SizedBox(width: 16.0),
+                    Expanded(
+                      child: TextFormField(
+                        onTap: () async {
+                          final DateTime? selectedDate = await showDatePicker(
+                            context: context,
+                            initialDate: _endDate,
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: const ColorScheme.light(
+                                    primary: Colors.green,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.purple,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      elevation: 10,
+                                      backgroundColor: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                child: MediaQuery(
+                                  data: MediaQuery.of(context)
+                                      .copyWith(alwaysUse24HourFormat: true),
+                                  child: child ?? Container(),
+                                ),
+                              );
+                            },
+                          );
+                          if (selectedDate != null) {
+                            setState(() {
+                              _endDate = selectedDate;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'End Date',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                        ),
+                        controller: TextEditingController(
+                            text: _endDate != null
+                                ? DateFormat('dd-MM-yyyy').format(_endDate)
+                                : ''),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        onTap: () async {
+                          final TimeOfDay? selectedTime = await showTimePicker(
+                            context: context,
+                            initialTime: _endTime,
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: const ColorScheme.light(
+                                    primary: Colors.green,
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.purple,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      elevation: 10,
+                                      backgroundColor: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                child: MediaQuery(
+                                  data: MediaQuery.of(context)
+                                      .copyWith(alwaysUse24HourFormat: true),
+                                  child: child ?? Container(),
+                                ),
+                              );
+                            },
+                          );
+                          if (selectedTime != null) {
+                            setState(() {
+                              _endTime = selectedTime;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'End Time',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                        ),
+                        controller: TextEditingController(
+                          // text: _endTime != null ? '${_endTime!.format(context)}' : '',
+                          text: _endTime != null
+                              ? '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}'
+                              : '',
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        updateData();
+                      },
+                      child: Text(
+                        'Get Data',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.green, // Set the button color to green
+                        minimumSize:
+                            Size(80, 0), // Set a minimum width for the button
+                        padding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.0),
+                  ],
+                ),
+                SizedBox(height: 32.0),
+                if (errorMessage.isNotEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        height: 400,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            errorMessage,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                            semanticsLabel: errorMessage = "",
                           ),
                         ),
                       ),
                     ),
-                  
-                );
-              
+                  )
+                else
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 400,
+                          child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'H2S',
+                              textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            tooltipBehavior: _tooltipBehavior,
+                            primaryXAxis: DateTimeAxis(
+                              title: AxisTitle(text: 'Time'),
+                            ),
+                            primaryYAxis: NumericAxis(
+                              title: AxisTitle(text: 'Temperature'),
+                            ),
+                            series: <CartesianSeries>[
+                              LineSeries<apiData, DateTime>(
+                                dataSource: chartData,
+                                xValueMapper: (apiData data, _) =>
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        int.parse(data.timestamp) * 1000),
+                                yValueMapper: (apiData data, _) =>
+                                    double.parse(data.temperature),
+                                name: 'Temperature',
+                                color: Color.fromARGB(255, 50, 110, 160),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 20), // Add spacing between charts
+                        Container(
+                          height: 400,
+                          child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'CO2',
+                              textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            tooltipBehavior: _tooltipBehavior,
+                            primaryXAxis: DateTimeAxis(
+                              title: AxisTitle(text: 'Time'),
+                            ),
+                            primaryYAxis: NumericAxis(
+                              title: AxisTitle(text: 'CO2'),
+                            ),
+                            series: <CartesianSeries>[
+                              LineSeries<apiData, DateTime>(
+                                dataSource: chartData,
+                                xValueMapper: (apiData data, _) =>
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        int.parse(data.timestamp) * 1000),
+                                yValueMapper: (apiData data, _) =>
+                                    double.parse(data.CO2),
+                                name: 'CO2',
+                                color: Color.fromARGB(255, 204, 103, 53),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 400,
+                          child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'SO2',
+                              textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            tooltipBehavior: _tooltipBehavior,
+                            primaryXAxis: DateTimeAxis(
+                              title: AxisTitle(text: 'Time'),
+                            ),
+                            primaryYAxis: NumericAxis(
+                              title: AxisTitle(text: 'SO2'),
+                            ),
+                            series: <CartesianSeries>[
+                              LineSeries<apiData, DateTime>(
+                                dataSource: chartData,
+                                xValueMapper: (apiData data, _) =>
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        int.parse(data.timestamp) * 1000),
+                                yValueMapper: (apiData data, _) =>
+                                    double.parse(data.SO2),
+                                name: 'SO2',
+                                color: Color.fromARGB(255, 45, 167, 69),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 400,
+                          child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'NH3',
+                              textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            tooltipBehavior: _tooltipBehavior,
+                            primaryXAxis: DateTimeAxis(
+                              title: AxisTitle(text: 'Time'),
+                            ),
+                            primaryYAxis: NumericAxis(
+                              title: AxisTitle(text: 'NH3'),
+                            ),
+                            series: <CartesianSeries>[
+                              LineSeries<apiData, DateTime>(
+                                dataSource: chartData,
+                                xValueMapper: (apiData data, _) =>
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        int.parse(data.timestamp) * 1000),
+                                yValueMapper: (apiData data, _) =>
+                                    double.parse(data.NH3),
+                                name: 'NH3',
+                                color: Color.fromARGB(255, 161, 36, 134),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 400,
+                          child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'H2S',
+                              textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            tooltipBehavior: _tooltipBehavior,
+                            primaryXAxis: DateTimeAxis(
+                              title: AxisTitle(text: 'Time'),
+                            ),
+                            primaryYAxis: NumericAxis(
+                              title: AxisTitle(text: 'H2S'),
+                            ),
+                            series: <CartesianSeries>[
+                              LineSeries<apiData, DateTime>(
+                                dataSource: chartData,
+                                xValueMapper: (apiData data, _) =>
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        int.parse(data.timestamp) * 1000),
+                                yValueMapper: (apiData data, _) =>
+                                    double.parse(data.H2S),
+                                name: 'H2S',
+                                color: Color.fromARGB(255, 168, 39, 39),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 400,
+                          child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'Humidity',
+                              textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            tooltipBehavior: _tooltipBehavior,
+                            primaryXAxis: DateTimeAxis(
+                              title: AxisTitle(text: 'Time'),
+                            ),
+                            primaryYAxis: NumericAxis(
+                              title: AxisTitle(text: 'Humidity'),
+                            ),
+                            series: <CartesianSeries>[
+                              LineSeries<apiData, DateTime>(
+                                dataSource: chartData,
+                                xValueMapper: (apiData data, _) =>
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        int.parse(data.timestamp) * 1000),
+                                yValueMapper: (apiData data, _) =>
+                                    double.parse(data.humidity),
+                                name: 'Humidity',
+                                color: Color.fromARGB(255, 147, 151, 39),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
