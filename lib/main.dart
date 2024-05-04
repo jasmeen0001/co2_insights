@@ -469,7 +469,7 @@ class _MyHomePageState extends State<Weather> {
                               title: AxisTitle(text: 'Time'),
                             ),
                             primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'Temperature'),
+                              title: AxisTitle(text: 'Temperature(°C)'),
                             ),
                             series: <CartesianSeries>[
                               LineSeries<apiData, DateTime>(
@@ -500,7 +500,7 @@ class _MyHomePageState extends State<Weather> {
                               title: AxisTitle(text: 'Time'),
                             ),
                             primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'CO2'),
+                              title: AxisTitle(text: 'CO2(ppm)'),
                             ),
                             series: <CartesianSeries>[
                               LineSeries<apiData, DateTime>(
@@ -530,7 +530,7 @@ class _MyHomePageState extends State<Weather> {
                               title: AxisTitle(text: 'Time'),
                             ),
                             primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'SO2'),
+                              title: AxisTitle(text: 'SO2(ppm)'),
                             ),
                             series: <CartesianSeries>[
                               LineSeries<apiData, DateTime>(
@@ -560,7 +560,7 @@ class _MyHomePageState extends State<Weather> {
                               title: AxisTitle(text: 'Time'),
                             ),
                             primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'NH3'),
+                              title: AxisTitle(text: 'NH3(ppm)'),
                             ),
                             series: <CartesianSeries>[
                               LineSeries<apiData, DateTime>(
@@ -590,7 +590,7 @@ class _MyHomePageState extends State<Weather> {
                               title: AxisTitle(text: 'Time'),
                             ),
                             primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'H2S'),
+                              title: AxisTitle(text: 'H2S(ppm)'),
                             ),
                             series: <CartesianSeries>[
                               LineSeries<apiData, DateTime>(
@@ -620,7 +620,7 @@ class _MyHomePageState extends State<Weather> {
                               title: AxisTitle(text: 'Time'),
                             ),
                             primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'Humidity'),
+                              title: AxisTitle(text: 'Humidity(Rh)'),
                             ),
                             series: <CartesianSeries>[
                               LineSeries<apiData, DateTime>(
