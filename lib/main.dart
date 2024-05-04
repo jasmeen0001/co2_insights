@@ -459,7 +459,7 @@ class _MyHomePageState extends State<Weather> {
                           height: 400,
                           child: SfCartesianChart(
                             title: ChartTitle(
-                              text: 'H2S',
+                              text: 'Temperature',
                               textStyle: TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
