@@ -86652,7 +86652,7 @@ gm2(){return"windows"},
 gpq(){return"\\"}}
 A.L1.prototype={
 M(a){var s=null
-return new A.yQ(new A.C_("","",s),"Onion Status",A.BL(s,B.kH,s),!1,s)}}
+return new A.yQ(new A.C_("","",s),"CO2 Insights",A.BL(s,B.kH,s),!1,s)}}
 A.C_.prototype={
 au(){var s,r,q,p=t.rk,o=A.b([],p)
 p=A.b([],p)
