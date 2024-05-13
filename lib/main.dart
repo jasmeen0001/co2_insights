@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Onion Status',
+      title: 'CO2 INSIGHTS',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
