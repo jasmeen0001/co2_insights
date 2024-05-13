@@ -21,47 +21,59 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Weather(nodeId: ''), // Example usage of Weather widget
+      home: Weather(
+        nodeId1: '',
+        nodeId2: '',
+      ), // Example usage of Weather widget
     );
   }
 }
 
 class Weather extends StatefulWidget {
-  final String nodeId;
+  final String nodeId1;
+  final String nodeId2;
 
   const Weather({
-    super.key,
-    required this.nodeId,
-  });
+    Key? key, // Added Key? key here
+    required this.nodeId1,
+    required this.nodeId2,
+  }) : super(key: key);
 
   @override
   State<Weather> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<Weather> {
-  List<apiData> chartData = [];
+  
   late TooltipBehavior _tooltipBehavior;
   late DateTime _startDate;
   late DateTime _endDate;
   List<dynamic> data = [];
-  String _nodeId = '';
+  String _nodeId1 = '';
+  String _nodeId2 = '';
+  String _gatewayId = '';
   String errorMessage = '';
   late String Class = " ";
+  List<apiData> chartDataNode1 = [];
+  List<apiData> chartDataNode2 = [];
   // ignore: unused_field
-  final TextEditingController _nodeIdController = TextEditingController();
+  final TextEditingController _nodeId1Controller = TextEditingController();
+  final TextEditingController _nodeId2Controller = TextEditingController();
+  final TextEditingController _gatewayIdController = TextEditingController();
 
   TimeOfDay _startTime = TimeOfDay.now();
   TimeOfDay _endTime = TimeOfDay.now();
   @override
   void initState() {
     super.initState();
+    _nodeId1 = widget.nodeId1;
+    _nodeId2 = widget.nodeId2;
     _startDate = DateTime.parse(DateTime.now().toString());
     _endDate = DateTime.parse(DateTime.now().toString());
     _tooltipBehavior = TooltipBehavior(enable: true);
   }
 
-  Future<void> getAPIData(String nodeId, String startDate, TimeOfDay startTime,
-      String endDate, TimeOfDay endTime) async {
+  Future<void> getAPIData(String nodeId, String gatewayId, String startDate, TimeOfDay startTime, String endDate, TimeOfDay endTime) async {
     // Combine start date and time strings into DateTime objects
     String extractedDate1 = startDate.split(' ')[0];
     String extractedDate2 = endDate.split(' ')[0];
@@ -95,7 +107,7 @@ class _MyHomePageState extends State<Weather> {
       parsedEndDateTime.hour,
       parsedEndDateTime.minute,
     );
-
+     
     final int startSeconds =
         formattedStartDateTime.millisecondsSinceEpoch ~/ 1000;
     final int endSeconds = formattedEndDateTime.millisecondsSinceEpoch ~/ 1000;
@@ -105,45 +117,76 @@ class _MyHomePageState extends State<Weather> {
     //  print(startSeconds.toString());
     //  print(starttime);
     final uri = Uri.https(
-      'bu98b5mygk.execute-api.us-east-1.amazonaws.com',
+      'qqvlf6v6kc.execute-api.us-east-1.amazonaws.com',
       '/v1/data',
       {
         'nodeId': nodeId,
+        'gatewayId': gatewayId,
         'starttime': startSeconds.toString(),
         'endtime': endSeconds.toString(),
       },
-      // 'https://bu98b5mygk.execute-api.us-east-1.amazonaws.com',
-      // '/v1/data',
-      // {
-      //   'nodeId': nodeId,
-      //   'starttime': startSeconds.toString(),
-      //   'endtime': endSeconds.toString(),
-      // },
     );
+    // 'https://bu98b5mygk.execute-api.us-east-1.amazonaws.com',
+    // '/v1/data',
+    // {
+    //   'nodeId': nodeId,
+    //   'starttime': startSeconds.toString(),
+    //   'endtime': endSeconds.toString(),
+    // },
+
     print(uri);
     final response = await http.get(uri);
     print("response");
     print(response.body);
 
     final parsed = jsonDecode(response.body);
-    if (parsed is List && parsed.isNotEmpty) {
-      setState(() {
-        chartData = parsed.map((data) => apiData.fromJson(data)).toList();
-      });
-    } else if (parsed['statusCode'] == 400 ||
-        parsed['statusCode'] == 404 ||
-        parsed['statusCode'] == 500) {
-      setState(() {
-        errorMessage = parsed['body'][0]['message'];
-      });
+    if (parsed != null) {
+      if (parsed is List && parsed.isNotEmpty) {
+        if (nodeId == _nodeId1) {
+          setState(() {
+            chartDataNode1 = parsed.map((data) => apiData.fromJson(data)).toList();
+          });
+        } else if (nodeId == _nodeId2) {
+          setState(() {
+            chartDataNode2 = parsed.map((data) => apiData.fromJson(data)).toList();
+          });
+        }
+      } else if (parsed is Map && parsed.containsKey('statusCode')) {
+        // Handle error response
+        setState(() {
+          errorMessage = parsed['body'][0]['message'];
+        });
+      } else {
+        throw Exception('Failed to load api');
+      }
     } else {
-      throw Exception('Failed to load api');
+      throw Exception('Invalid response format');
     }
   }
 
   void updateData() async {
-    await getAPIData(_nodeId, _startDate.toString(), _startTime,
-        _endDate.toString(), _endTime);
+    if (_gatewayId.isNotEmpty &&
+        _startDate != null &&
+        _startTime != null &&
+        _endDate != null &&
+        _endTime != null) {
+      // Fetch data for Node ID 1 and Node ID 2 simultaneously
+      final future1 = getAPIData(_nodeId1, _gatewayId, _startDate.toString(),
+          _startTime, _endDate.toString(), _endTime);
+      final future2 = getAPIData(_nodeId2, _gatewayId, _startDate.toString(),
+          _startTime, _endDate.toString(), _endTime);
+
+      // Wait for both futures to complete
+      await Future.wait([future1, future2]);
+
+      // Update the chartData state after both sets of data are fetched
+      setState(() {
+        var chartData;
+        print('Chart Data Length: ${chartData.length}');
+      });
+    } else {
+      print('Some required values are null or empty');
+    }
   }
 
   @override
@@ -173,10 +216,26 @@ class _MyHomePageState extends State<Weather> {
                   children: [
                     SizedBox(width: 16.0),
                     Expanded(
+                      child: TextFormField(
+                        controller: _gatewayIdController,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Gateway ID',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _gatewayId = value;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
                         child: TextFormField(
-                      controller: _nodeIdController,
+                      controller: _nodeId1Controller,
                       decoration: InputDecoration(
-                        labelText: 'Enter Node ID',
+                        labelText: 'Enter Node ID 1 ',
                         border: OutlineInputBorder(),
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -185,7 +244,27 @@ class _MyHomePageState extends State<Weather> {
                         {
                           // Remove leading zeros
                           setState(() {
-                            _nodeId = value;
+                            _nodeId1 = value;
+                          });
+                        }
+                        ;
+                      },
+                    )),
+                    SizedBox(width: 16.0),
+                    Expanded(
+                        child: TextFormField(
+                      controller: _nodeId2Controller,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Node ID 2 ',
+                        border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      ),
+                      onChanged: (value) {
+                        {
+                          // Remove leading zeros
+                          setState(() {
+                            _nodeId2 = value;
                           });
                         }
                         ;
@@ -455,185 +534,103 @@ class _MyHomePageState extends State<Weather> {
                   Center(
                     child: Column(
                       children: [
-                        Container(
-                          height: 400,
-                          child: SfCartesianChart(
-                            title: ChartTitle(
-                              text: 'Temperature',
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Card(
+                  child: Container(
+                    height: 400,
+                    child: SfCartesianChart(
+                      title: ChartTitle(
+                        text: 'Gases Data for Node $_nodeId1',
+                        textStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      tooltipBehavior: _tooltipBehavior,
+                      primaryXAxis: DateTimeAxis(title: AxisTitle(text: 'Time')),
+                      primaryYAxis: NumericAxis(title: AxisTitle(text: 'Value')),
+                      series: <CartesianSeries>[
+                        LineSeries<apiData, DateTime>(
+                          dataSource: chartDataNode1,
+                          xValueMapper: (apiData data, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(data.timestamp) * 1000),
+                          yValueMapper: (apiData data, _) =>
+                              double.parse(data.temperature),
+                          name: 'Temperature Node $_nodeId1',
+                          color: Color.fromARGB(255, 50, 110, 160),
+                        ),
+                        LineSeries<apiData, DateTime>(
+                          dataSource: chartDataNode1,
+                          xValueMapper: (apiData data, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(data.timestamp) * 1000),
+                          yValueMapper: (apiData data, _) =>
+                              double.parse(data.CO2),
+                          name: 'CO2 Node $_nodeId1',
+                          color: Color.fromARGB(255, 204, 103, 53),
+                        ),
+                        LineSeries<apiData, DateTime>(
+                          dataSource: chartDataNode1,
+                          xValueMapper: (apiData data, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(data.timestamp) * 1000),
+                          yValueMapper: (apiData data, _) =>
+                              double.parse(data.humidity),
+                          name: 'Humidity Node $_nodeId1',
+                          color: Color.fromARGB(255, 147, 151, 39),                                ),
+                              ],
                             ),
-                            tooltipBehavior: _tooltipBehavior,
-                            primaryXAxis: DateTimeAxis(
-                              title: AxisTitle(text: 'Time'),
-                            ),
-                            primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'Temperature(°C)'),
-                            ),
-                            series: <CartesianSeries>[
-                              LineSeries<apiData, DateTime>(
-                                dataSource: chartData,
-                                xValueMapper: (apiData data, _) =>
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        int.parse(data.timestamp) * 1000),
-                                yValueMapper: (apiData data, _) =>
-                                    double.parse(data.temperature),
-                                name: 'Temperature',
-                                color: Color.fromARGB(255, 50, 110, 160),
-                              ),
-                            ],
                           ),
                         ),
-                        SizedBox(height: 20), // Add spacing between charts
-                        Container(
-                          height: 400,
-                          child: SfCartesianChart(
-                            title: ChartTitle(
-                              text: 'CO2',
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            tooltipBehavior: _tooltipBehavior,
-                            primaryXAxis: DateTimeAxis(
-                              title: AxisTitle(text: 'Time'),
-                            ),
-                            primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'CO2(ppm)'),
-                            ),
-                            series: <CartesianSeries>[
-                              LineSeries<apiData, DateTime>(
-                                dataSource: chartData,
-                                xValueMapper: (apiData data, _) =>
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        int.parse(data.timestamp) * 1000),
-                                yValueMapper: (apiData data, _) =>
-                                    double.parse(data.CO2),
-                                name: 'CO2',
-                                color: Color.fromARGB(255, 204, 103, 53),
-                              ),
-                            ],
-                          ),
+
+                        SizedBox(
+                            height:
+                                16), // Add some space between the two charts
+                       Card(
+                  child: Container(
+                    height: 400,
+                    child: SfCartesianChart(
+                      title: ChartTitle(
+                        text: 'Gases Data for Node $_nodeId2',
+                        textStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
                         ),
-                        Container(
-                          height: 400,
-                          child: SfCartesianChart(
-                            title: ChartTitle(
-                              text: 'SO2',
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            tooltipBehavior: _tooltipBehavior,
-                            primaryXAxis: DateTimeAxis(
-                              title: AxisTitle(text: 'Time'),
-                            ),
-                            primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'SO2(ppm)'),
-                            ),
-                            series: <CartesianSeries>[
-                              LineSeries<apiData, DateTime>(
-                                dataSource: chartData,
-                                xValueMapper: (apiData data, _) =>
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        int.parse(data.timestamp) * 1000),
-                                yValueMapper: (apiData data, _) =>
-                                    double.parse(data.SO2),
-                                name: 'SO2',
-                                color: Color.fromARGB(255, 45, 167, 69),
-                              ),
-                            ],
-                          ),
+                      ),
+                      tooltipBehavior: _tooltipBehavior,
+                      primaryXAxis: DateTimeAxis(title: AxisTitle(text: 'Time')),
+                      primaryYAxis: NumericAxis(title: AxisTitle(text: 'Value')),
+                      series: <CartesianSeries>[
+                        LineSeries<apiData, DateTime>(
+                          dataSource: chartDataNode2,
+                          xValueMapper: (apiData data, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(data.timestamp) * 1000),
+                          yValueMapper: (apiData data, _) =>
+                              double.parse(data.temperature),
+                          name: 'Temperature Node $_nodeId2',
+                          color: Color.fromARGB(255, 50, 110, 160),
                         ),
-                        Container(
-                          height: 400,
-                          child: SfCartesianChart(
-                            title: ChartTitle(
-                              text: 'NH3',
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            tooltipBehavior: _tooltipBehavior,
-                            primaryXAxis: DateTimeAxis(
-                              title: AxisTitle(text: 'Time'),
-                            ),
-                            primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'NH3(ppm)'),
-                            ),
-                            series: <CartesianSeries>[
-                              LineSeries<apiData, DateTime>(
-                                dataSource: chartData,
-                                xValueMapper: (apiData data, _) =>
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        int.parse(data.timestamp) * 1000),
-                                yValueMapper: (apiData data, _) =>
-                                    double.parse(data.NH3),
-                                name: 'NH3',
-                                color: Color.fromARGB(255, 161, 36, 134),
-                              ),
-                            ],
-                          ),
+                        LineSeries<apiData, DateTime>(
+                          dataSource: chartDataNode2,
+                          xValueMapper: (apiData data, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(data.timestamp) * 1000),
+                          yValueMapper: (apiData data, _) =>
+                              double.parse(data.CO2),
+                          name: 'CO2 Node $_nodeId2',
+                          color: Color.fromARGB(255, 204, 103, 53),
                         ),
-                        Container(
-                          height: 400,
-                          child: SfCartesianChart(
-                            title: ChartTitle(
-                              text: 'H2S',
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                        LineSeries<apiData, DateTime>(
+                          dataSource: chartDataNode2,
+                          xValueMapper: (apiData data, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(data.timestamp) * 1000),
+                          yValueMapper: (apiData data, _) =>
+                              double.parse(data.humidity),
+                          name: 'Humidity Node $_nodeId2',
+                          color: Color.fromARGB(255, 147, 151, 39),
+                                ),
+                              ],
                             ),
-                            tooltipBehavior: _tooltipBehavior,
-                            primaryXAxis: DateTimeAxis(
-                              title: AxisTitle(text: 'Time'),
-                            ),
-                            primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'H2S(ppm)'),
-                            ),
-                            series: <CartesianSeries>[
-                              LineSeries<apiData, DateTime>(
-                                dataSource: chartData,
-                                xValueMapper: (apiData data, _) =>
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        int.parse(data.timestamp) * 1000),
-                                yValueMapper: (apiData data, _) =>
-                                    double.parse(data.H2S),
-                                name: 'H2S',
-                                color: Color.fromARGB(255, 168, 39, 39),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          height: 400,
-                          child: SfCartesianChart(
-                            title: ChartTitle(
-                              text: 'Humidity',
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            tooltipBehavior: _tooltipBehavior,
-                            primaryXAxis: DateTimeAxis(
-                              title: AxisTitle(text: 'Time'),
-                            ),
-                            primaryYAxis: NumericAxis(
-                              title: AxisTitle(text: 'Humidity(Rh)'),
-                            ),
-                            series: <CartesianSeries>[
-                              LineSeries<apiData, DateTime>(
-                                dataSource: chartData,
-                                xValueMapper: (apiData data, _) =>
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        int.parse(data.timestamp) * 1000),
-                                yValueMapper: (apiData data, _) =>
-                                    double.parse(data.humidity),
-                                name: 'Humidity',
-                                color: Color.fromARGB(255, 147, 151, 39),
-                              ),
-                            ],
                           ),
                         ),
                       ],
@@ -647,41 +644,41 @@ class _MyHomePageState extends State<Weather> {
     );
   }
 }
+  
+
+card(Container container, {required Container child}) {}
 
 class apiData {
   apiData({
     required this.humanTime,
     required this.CO2,
-    required this.SO2,
     required this.timestamp,
     required this.nodeId,
-    required this.NH3,
-    required this.H2S,
+    required this.gatewayId,
     required this.humidity,
     required this.temperature,
   });
 
   final String humanTime;
   final String CO2;
-  final String SO2;
+
   final String timestamp;
   final String nodeId;
-  final String NH3;
-  final String H2S;
+  final String gatewayId;
+
   final String humidity;
   final String temperature;
 
   factory apiData.fromJson(Map<String, dynamic> json) {
     return apiData(
-      humanTime: json['human_time'],
-      CO2: json['CO2'],
-      SO2: json['SO2'],
-      timestamp: json['timestamp'],
-      nodeId: json['nodeId'],
-      NH3: json['NH3'],
-      H2S: json['H2S'],
-      humidity: json['humidity'],
-      temperature: json['temperature'],
+      humanTime: json['human_time'] ?? '', // Provide default value if null
+      CO2: json['co2'] ?? '', // Provide default value if null
+      timestamp: json['timestamp'] ?? '', // Provide default value if null
+      nodeId: json['nodeId'] ?? '',
+      // Provide default value if null
+      gatewayId: json['gatewayId'] ?? '', // Provide default value if null
+      humidity: json['humidity'] ?? '', // Provide default value if null
+      temperature: json['temperature'] ?? '', // Provide default value if null
     );
   }
 }
