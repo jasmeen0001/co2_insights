@@ -194,7 +194,7 @@ class _MyHomePageState extends State<Weather> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Onion Staus ',
+          'CO2 INSIGHTS',
           style: TextStyle(
             fontSize: 20.0,
             letterSpacing: 1.0,
