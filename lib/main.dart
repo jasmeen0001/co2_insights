@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'CO2 INSIGHTS',
+      title: 'CO2 Insights',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
